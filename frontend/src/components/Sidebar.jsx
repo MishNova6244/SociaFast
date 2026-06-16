@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom"
 import SFlogo from "../assets/sociafast_logo.png"
+import {FaHouseChimney} from "react-icons/fa6"
 
 function Sidebar() {
   return (
@@ -17,17 +18,12 @@ function Sidebar() {
 
       <nav className="flex flex-col gap-2 p-4">
 
-        <Link
-          to="/dashboard"
-          className="p-3 rounded-lg hover:bg-white/20 transition"
-        >
-          🏠 Inicio
+        <Link to="/dashboard" className="p-3 rounded-lg hover:bg-white/20 transition">
+        <FaHouseChimney size={22}/>
+          Inicio
         </Link>
 
-        <Link
-          to="/registro-servicio"
-          className="p-3 rounded-lg hover:bg-white/20 transition"
-        >
+        <Link to="/registro-servicio" className="p-3 rounded-lg hover:bg-white/20 transition">
           📝 Registro
         </Link>
 
