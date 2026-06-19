@@ -1,81 +1,73 @@
-# app/services/auth_service.py
-"""
-Servicio de autenticación.
-Maneja hasheo de contraseñas y tokens JWT.
-"""
+from sqlalchemy.orm import Session
+from fastapi import HTTPException, status
 
-# 1. Utilidades de fecha
-from datetime import datetime, timedelta
-from typing import Optional
-
-# 2. Para hashear contraseñas - usando bcrypt directamente
-import bcrypt
-
-# 3. Para crear tokens JWT
-from jose import JWTError, jwt
-from dotenv import load_dotenv
-import os
-
-# 4. Cargar configuración
-load_dotenv()
-
-SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = os.getenv("ALGORITHM")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
+from app.core.security import verify_password, get_password_hash, create_access_token
+from app.core.exceptions import ConflictException, UnauthorizedException
+from app.models.user import User
+from app.schemas.auth import LoginRequest, TokenResponse
+from app.schemas.user import UserCreate, UserResponse
 
 
-# 5. Funciones de contraseña
-# -----------------------
+class AuthService:
+    def __init__(self, db: Session):
+        self.db = db
 
-def hash_password(password: str) -> str:
-    """
-    Hashea una contraseña en texto plano.
-    Retorna el hash generado.
-    """
-    # Convertir a bytes
-    password_bytes = password.encode('utf-8')
-    salt = bcrypt.gensalt()
-    hashed = bcrypt.hashpw(password_bytes, salt)
-    return hashed.decode('utf-8')
+    # ── Registro ───────────────────────────────────────────────
 
+    def register(self, data: UserCreate) -> UserResponse:
+        """Crea un nuevo usuario con rol 'estudiante'."""
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """
-    Verifica una contraseña contra su hash.
-    Retorna True si coinciden, False si no.
-    """
-    password_bytes = plain_password.encode('utf-8')
-    hashed_bytes = hashed_password.encode('utf-8')
-    return bcrypt.checkpw(password_bytes, hashed_bytes)
+        # Verificar duplicados
+        if self.db.query(User).filter(User.email == data.email).first():
+            raise ConflictException("El correo ya está registrado")
 
+        if self.db.query(User).filter(User.matricula == data.matricula).first():
+            raise ConflictException("La matrícula ya está registrada")
 
-# 6. Funciones de JWT
-# -------------------
+        new_user = User(
+            nombre=data.nombre,
+            apellido_paterno=data.apellido_paterno,
+            apellido_materno=data.apellido_materno,
+            matricula=data.matricula,
+            carrera=data.carrera,
+            email=data.email,
+            password=get_password_hash(data.password),
+            role="estudiante",
+        )
+        self.db.add(new_user)
+        self.db.commit()
+        self.db.refresh(new_user)
+        return UserResponse.model_validate(new_user)
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
-    """
-    Crea un token JWT con los datos proporcionados.
-    """
-    to_encode = data.copy()
-    
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    
-    to_encode.update({"exp": expire})
-    
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+    # ── Login ──────────────────────────────────────────────────
 
+    def login(self, data: LoginRequest) -> TokenResponse:
+        """Verifica credenciales y devuelve el JWT."""
 
-def decode_access_token(token: str) -> Optional[dict]:
-    """
-    Decodifica un token JWT.
-    Retorna los datos si es válido, None si no.
-    """
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload
-    except JWTError:
-        return None
+        user = self.db.query(User).filter(User.email == data.email).first()
+
+        if not user or not verify_password(data.password, user.password):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Correo o contraseña incorrectos",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        if not user.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Tu cuenta está desactivada. Contacta al encargado.",
+            )
+
+        token = create_access_token({
+            "sub": user.id,
+            "role": user.role,
+            "email": user.email,
+        })
+
+        return TokenResponse(
+            access_token=token,
+            role=user.role,
+            user_id=user.id,
+            nombre=user.nombre,
+        )
