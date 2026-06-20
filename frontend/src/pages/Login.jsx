@@ -1,6 +1,6 @@
 import Layout from "../components/Layout"
 import Input from "../components/Input"
-import {Link} from "react-router"
+import {Link} from "react-router-dom"
 
 function Login(){
     return(
@@ -13,11 +13,11 @@ function Login(){
         <Input label="Contraseña:" type="password" placeholder="Ingrese su contraseña"></Input>
 
         <div className="flex justify-center">
-        <Link to="/dashAlumno" className="bg-[#06B800] font-bold text-white px-6 py-2 rounded-full hover:bg-green-800 hover:scale-105 transition">Iniciar sesión</Link>
+        <Link to="/dashboardAlumno" className="bg-[#06B800] font-bold text-white px-6 py-2 rounded-full hover:bg-green-800 hover:scale-105 transition">Iniciar sesión</Link>
         </div>
 
         <p className="text-center mt-4">¿Aún no tienes cuenta?</p>
-        <Link to="/registro" className="text-[#00B58E] font-semibold block text-center w-full hover:underline">Registrarse</Link>
+        <Link to="/validarCorreo" className="text-[#00B58E] font-semibold block text-center w-full hover:underline">Registrarse</Link>
         </div>
         </Layout>
     )

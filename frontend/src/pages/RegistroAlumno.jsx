@@ -1,6 +1,6 @@
 import Input from "../components/Input"
 import Layout from "../components/Layout"
-import {Link} from "react-router"
+import {Link} from "react-router-dom"
 
 function Registro() {
   return (
@@ -30,8 +30,6 @@ function Registro() {
                 <option value="mixta">Modalidad Mixta</option>
                 <option value="semiconductores">Semiconductores</option>
             </select>
-
-            <Input label="Correo institucional:" type="email" placeholder="ejemplo@utpn.edu.mx"></Input>
 
             <Input label="Contraseña:" type="password" placeholder="Ingrese una contraseña"></Input>
 
