@@ -1,7 +1,8 @@
-import {BrowserRouter, Routes, Route} from "react-router"
+import {BrowserRouter, Routes, Route} from "react-router-dom"
 
 import Login from "./pages/Login"
-import Registro from "./pages/Registro"
+import ValidacionCorreo from "./pages/ValidacionCorreo"
+import RegistroAlumno from "./pages/RegistroAlumno"
 import DashboardAlumno from "./pages/DashboardAlumno"
 
 function App() {
@@ -9,8 +10,9 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/registro" element={<Registro />} />
-        <Route path="/dashAlumno" element={<DashboardAlumno/>} />
+        <Route path="/validarCorreo" element={<ValidacionCorreo/>} />
+        <Route path="/registroAlumno" element={<RegistroAlumno />} />
+        <Route path="/dashboardAlumno" element={<DashboardAlumno/>} />
       </Routes>
     </BrowserRouter>
   )

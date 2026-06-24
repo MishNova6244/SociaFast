@@ -8,7 +8,7 @@ function Layout({ children, className = "" }) {
       style={{ backgroundImage: `url(${fondoUTPN})` }}
     >
       <div className={`min-h-screen backdrop-blur-sm bg-black/10 flex flex-col justify-center items-center ${className}`}>
-        <img src={SFlogo} alt="Logo SociaFast" className="w-[350px] h-auto -mb-2"/>
+        <img src={SFlogo} alt="Logo SociaFast" className="w-[350px] h-auto mb-2"/>
 
         {children}
 
