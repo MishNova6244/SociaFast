@@ -1,10 +1,20 @@
+# ── Web framework ──────────────────────────────────────────────
 fastapi==0.111.0
-uvicorn[standard]==0.29.0
-sqlalchemy==2.0.30
-pymysql==1.1.1
-python-dotenv==1.0.1
+uvicorn[standard]==0.29.0        # servidor ASGI con recarga en caliente
+
+# ── Base de datos ──────────────────────────────────────────────
+sqlalchemy==2.0.30               # ORM principal
+pymysql==1.1.1                   # driver MySQL puro Python (no requiere binarios)
+
+# ── Validación de datos ────────────────────────────────────────
 pydantic==2.7.1
-pydantic-settings==2.3.0
-python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
-python-multipart==0.0.9
+pydantic-settings==2.3.0         # leer variables de entorno con validación
+email-validator==2.1.1           # requerido por Pydantic para EmailStr
+
+# ── Autenticación ──────────────────────────────────────────────
+python-jose[cryptography]==3.3.0 # generación y verificación de JWT
+passlib[bcrypt]==1.7.4           # hash de contraseñas con bcrypt
+
+# ── Utilidades ─────────────────────────────────────────────────
+python-multipart==0.0.9          # necesario para recibir forms en FastAPI
+python-dotenv==1.0.1             # cargar .env en desarrollo

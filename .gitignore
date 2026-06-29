@@ -1,16 +1,11 @@
-# Python
-backend/venv/
+# Entorno virtual
+venv/
 __pycache__/
 *.pyc
 
-# Variables de entorno
+# Variables de entorno (NUNCA subir a git)
 .env
 
-# React / Node
-node_modules/
-
-# VS Code
-.vscode/
-
-# Archivos de sistema
-.DS_Store
+# Base de datos local
+*.db
+*.sqlite
