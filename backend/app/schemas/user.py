@@ -1,72 +1,57 @@
-from typing import Literal, Optional
-from pydantic import BaseModel, EmailStr, field_validator
+from typing import Optional
 
+from pydantic import BaseModel, EmailStr, field_validator, model_validator
 
-CARRERAS_VALIDAS = {
-    "mecatronica",
-    "industrial",
-    "logistica",
-    "tecnologias",
-    "arquitectura",
-    "administracion",
-    "contaduria",
-    "mixta",
-    "semiconductores",
-}
+DOMINIO_INSTITUCIONAL = "@utpn.edu.mx"
 
 
 class UserCreate(BaseModel):
-    """Datos del formulario Registro.jsx"""
+    """Datos que envía RegistroAlumno.jsx"""
     nombre: str
     apellido_paterno: str
     apellido_materno: Optional[str] = None
     matricula: str
-    carrera: str
-    email: EmailStr
+    carrera: str          # llega como "siglas", ej. "mecatronica"
+    correo: EmailStr
     password: str
     confirm_password: str
 
-    @field_validator("carrera")
+    @field_validator("correo")
     @classmethod
-    def carrera_valida(cls, v: str) -> str:
-        if v not in CARRERAS_VALIDAS:
-            raise ValueError(f"Carrera no válida: {v}")
-        return v
-
-    @field_validator("confirm_password")
-    @classmethod
-    def passwords_match(cls, v: str, info) -> str:
-        if "password" in info.data and v != info.data["password"]:
-            raise ValueError("Las contraseñas no coinciden")
+    def correo_de_estudiante(cls, v: str) -> str:
+        if not v.endswith(DOMINIO_INSTITUCIONAL):
+            raise ValueError(f"El correo debe terminar en {DOMINIO_INSTITUCIONAL}")
+        usuario = v.split("@")[0]
+        if not usuario.isdigit():
+            raise ValueError("Este correo no corresponde a un estudiante")
         return v
 
     @field_validator("matricula")
     @classmethod
     def matricula_formato(cls, v: str) -> str:
-        v = v.strip()
         if not v.isdigit() or len(v) != 8:
             raise ValueError("La matrícula debe tener exactamente 8 dígitos")
         return v
 
+    @model_validator(mode="after")
+    def passwords_coinciden(self):
+        if self.password != self.confirm_password:
+            raise ValueError("Las contraseñas no coinciden")
+        return self
+
 
 class UserResponse(BaseModel):
-    """Datos públicos del usuario (nunca expone password)."""
-    id: str
+    """Lo que se expone al frontend (nunca incluye password_hash)"""
+    matricula: str
     nombre: str
     apellido_paterno: str
     apellido_materno: Optional[str]
-    matricula: str
+    correo_institucional: str
+    estado: str
+    foto_perfil: Optional[str]
+
+    # Datos derivados de las relaciones (no columnas directas)
+    rol: str
     carrera: str
-    email: str
-    role: str
-    is_active: bool
 
     model_config = {"from_attributes": True}
-
-
-class UserUpdate(BaseModel):
-    """Campos opcionales para actualizar perfil."""
-    nombre: Optional[str] = None
-    apellido_paterno: Optional[str] = None
-    apellido_materno: Optional[str] = None
-    carrera: Optional[str] = None

@@ -1,73 +1,84 @@
 from sqlalchemy.orm import Session
-from fastapi import HTTPException, status
 
-from app.core.security import verify_password, get_password_hash, create_access_token
-from app.core.exceptions import ConflictException, UnauthorizedException
+from app.core.exceptions import ConflictException, UnauthorizedException, ForbiddenException
+from app.core.security import hash_password, verify_password, create_token
 from app.models.user import User
-from app.schemas.auth import LoginRequest, TokenResponse
+from app.repositories.user_repository import UserRepository
+from app.schemas.auth import ValidarCorreoResponse, LoginRequest, TokenResponse
 from app.schemas.user import UserCreate, UserResponse
 
 
 class AuthService:
     def __init__(self, db: Session):
-        self.db = db
+        self.repo = UserRepository(db)
 
-    # ── Registro ───────────────────────────────────────────────
+    # ── Paso 1: ValidacionCorreo.jsx ───────────────────────────
+    def validar_correo(self, correo: str) -> ValidarCorreoResponse:
+        usuario = correo.split("@")[0]
+        if usuario.isdigit():
+            return ValidarCorreoResponse(
+                es_estudiante=True,
+                mensaje="Correo válido, continúa con tu registro.",
+            )
+        return ValidarCorreoResponse(
+            es_estudiante=False,
+            mensaje="El registro de encargados será administrado por el sistema.",
+        )
 
+    # ── Paso 2: RegistroAlumno.jsx ──────────────────────────────
     def register(self, data: UserCreate) -> UserResponse:
-        """Crea un nuevo usuario con rol 'estudiante'."""
-
-        # Verificar duplicados
-        if self.db.query(User).filter(User.email == data.email).first():
+        if self.repo.get_by_correo(data.correo):
             raise ConflictException("El correo ya está registrado")
-
-        if self.db.query(User).filter(User.matricula == data.matricula).first():
+        if self.repo.get_by_matricula(data.matricula):
             raise ConflictException("La matrícula ya está registrada")
 
-        new_user = User(
+        career_id = self.repo.get_career_id_by_siglas(data.carrera)
+        if not career_id:
+            raise ConflictException("La carrera seleccionada no es válida")
+
+        nuevo_usuario = User(
+            matricula=data.matricula,
             nombre=data.nombre,
             apellido_paterno=data.apellido_paterno,
             apellido_materno=data.apellido_materno,
-            matricula=data.matricula,
-            carrera=data.carrera,
-            email=data.email,
-            password=get_password_hash(data.password),
-            role="estudiante",
+            correo_institucional=data.correo,
+            password_hash=hash_password(data.password),
+            career_id=career_id,
+            role_id=3,  # estudiante, regla de negocio fija
         )
-        self.db.add(new_user)
-        self.db.commit()
-        self.db.refresh(new_user)
-        return UserResponse.model_validate(new_user)
+        creado = self.repo.create(nuevo_usuario)
 
-    # ── Login ──────────────────────────────────────────────────
+        return UserResponse(
+            matricula=creado.matricula,
+            nombre=creado.nombre,
+            apellido_paterno=creado.apellido_paterno,
+            apellido_materno=creado.apellido_materno,
+            correo_institucional=creado.correo_institucional,
+            estado=creado.estado,
+            foto_perfil=creado.foto_perfil,
+            rol="estudiante",
+            carrera=data.carrera,
+        )
 
+    # ── Paso 3: Login.jsx ────────────────────────────────────────
     def login(self, data: LoginRequest) -> TokenResponse:
-        """Verifica credenciales y devuelve el JWT."""
+        usuario = self.repo.get_by_correo(data.correo)
 
-        user = self.db.query(User).filter(User.email == data.email).first()
+        if not usuario or not verify_password(data.password, usuario.password_hash):
+            if usuario:
+                self.repo.incrementar_intentos_fallidos(usuario)
+            raise UnauthorizedException("Correo o contraseña incorrectos")
 
-        if not user or not verify_password(data.password, user.password):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Correo o contraseña incorrectos",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+        if usuario.estado != "activo":
+            raise ForbiddenException("Tu cuenta no está activa. Contacta al encargado.")
 
-        if not user.is_active:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Tu cuenta está desactivada. Contacta al encargado.",
-            )
+        self.repo.update_login_exitoso(usuario)
 
-        token = create_access_token({
-            "sub": user.id,
-            "role": user.role,
-            "email": user.email,
-        })
+        token = create_token({"sub": usuario.matricula, "role": usuario.role.nombre})
 
         return TokenResponse(
             access_token=token,
-            role=user.role,
-            user_id=user.id,
-            nombre=user.nombre,
+            rol=usuario.role.nombre,
+            matricula=usuario.matricula,
+            nombre=f"{usuario.nombre} {usuario.apellido_paterno}",
         )
