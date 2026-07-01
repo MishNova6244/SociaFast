@@ -4,20 +4,38 @@ import Layout from "../components/Layout"
 import Input from "../components/Input"
 import { authApi } from "../services/api"
 
+const MAX_INTENTOS = 3
+
 function Login() {
-  const [correo, setCorreo]     = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError]       = useState("")
-  const [loading, setLoading]   = useState(false)
+  const [correo, setCorreo]       = useState("")
+  const [password, setPassword]   = useState("")
+  const [error, setError]         = useState("")
+  const [loading, setLoading]     = useState(false)
+  const [intentos, setIntentos]   = useState(0)
   const navigate = useNavigate()
 
   async function handleLogin() {
     setError("")
+
+    if (!correo.trim()) {
+      setError("El correo es obligatorio")
+      return
+    }
+
+    if (!password.trim()) {
+      setError("La contraseña es obligatoria")
+      return
+    }
+
+    if (!correo.endsWith("@utpn.edu.mx")) {
+      setError("Acceso no autorizado. Solo se permiten correos institucionales @utpn.edu.mx")
+      return
+    }
+    
     setLoading(true)
     try {
       const res = await authApi.login(correo, password)
 
-      // Guardar token y datos básicos para uso en el dashboard
       localStorage.setItem("token", res.access_token)
       localStorage.setItem("user", JSON.stringify({
         nombre:    res.nombre,
@@ -26,11 +44,18 @@ function Login() {
       }))
 
       navigate("/dashboardAlumno")
-    } catch (e) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
-    }
+   } catch (e) {
+  const nuevosIntentos = intentos + 1
+  setIntentos(nuevosIntentos)
+
+  if (nuevosIntentos >= MAX_INTENTOS) {
+    setError(`Contraseña incorrecta. Has alcanzado ${MAX_INTENTOS} intentos fallidos.`)
+  } else {
+    setError(`Contraseña incorrecta. Intento ${nuevosIntentos} de ${MAX_INTENTOS}.`)
+  }
+} finally {
+  setLoading(false)
+}
   }
 
   return (
@@ -54,7 +79,17 @@ function Login() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+
+        {/* Mostrar aviso de recuperación después de MAX_INTENTOS fallos */}
+        {intentos >= MAX_INTENTOS && (
+          <p className="text-sm text-yellow-700 bg-yellow-50 border border-yellow-300 rounded-lg p-3 mb-3">
+            ¿Olvidaste tu contraseña?{" "}
+            <Link to="/recuperar" className="font-semibold underline hover:text-yellow-900">
+              Recupérala aquí
+            </Link>
+          </p>
+        )}
 
         <div className="flex justify-center">
           <button

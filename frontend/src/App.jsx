@@ -1,18 +1,24 @@
-import {BrowserRouter, Routes, Route} from "react-router-dom"
+import { BrowserRouter, Routes, Route } from "react-router-dom"
 
-import Login from "./pages/Login"
+import Login           from "./pages/Login"
 import ValidacionCorreo from "./pages/ValidacionCorreo"
-import RegistroAlumno from "./pages/RegistroAlumno"
+import RegistroAlumno  from "./pages/RegistroAlumno"
 import DashboardAlumno from "./pages/DashboardAlumno"
+import ProtectedRoute  from "./components/ProtectedRoute"
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/validarCorreo" element={<ValidacionCorreo/>} />
+        {/* Rutas públicas */}
+        <Route path="/"              element={<Login />} />
+        <Route path="/validarCorreo" element={<ValidacionCorreo />} />
         <Route path="/registroAlumno" element={<RegistroAlumno />} />
-        <Route path="/dashboardAlumno" element={<DashboardAlumno/>} />
+
+        {/* Rutas protegidas: redirigen al login si no hay token */}
+        <Route path="/dashboardAlumno" element={
+          <ProtectedRoute><DashboardAlumno /></ProtectedRoute>
+        } />
       </Routes>
     </BrowserRouter>
   )

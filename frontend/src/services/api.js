@@ -1,23 +1,30 @@
-const BASE_URL = "http://localhost:8000/api/v1"
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1"
 
-// Helper central: todas las llamadas al backend pasan por aquí
-async function request(endpoint, options = {}) {
+function clearSession() {
+  localStorage.removeItem("token")
+  localStorage.removeItem("user")
+  window.location.href = "/"   // redirige al login en cualquier pantalla
+}
+
+async function request(endpoint, options = {}, skipAuthRedirect = false) {
   const token = localStorage.getItem("token")
 
   const res = await fetch(`${BASE_URL}${endpoint}`, {
     headers: {
       "Content-Type": "application/json",
-      // Agrega el JWT si existe en localStorage
       ...(token && { Authorization: `Bearer ${token}` }),
     },
     ...options,
   })
 
+  // Solo redirige al login si es 401 Y no es un endpoint público
+  if (res.status === 401 && !skipAuthRedirect) {
+    clearSession()
+    throw new Error("Sesión expirada. Por favor inicia sesión de nuevo.")
+  }
+
   const data = await res.json()
-
-  // Si el backend responde con error, lo lanzamos para capturarlo en el componente
   if (!res.ok) throw new Error(data.detail || "Error del servidor")
-
   return data
 }
 
@@ -34,11 +41,12 @@ export const authApi = {
       body: JSON.stringify(formData),
     }),
 
+  // true = no redirigir si recibe 401, solo lanzar el error
   login: (correo, password) =>
     request("/auth/login", {
       method: "POST",
       body: JSON.stringify({ correo, password }),
-    }),
+    }, true),
 }
 
 export const usersApi = {

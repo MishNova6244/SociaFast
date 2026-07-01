@@ -15,8 +15,6 @@ def get_me(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Devuelve el perfil completo del usuario autenticado."""
-    # Recargamos con joinedload para tener role y career disponibles
     user = UserRepository(db).get_by_matricula(current_user.matricula)
     return UserResponse(
         matricula=user.matricula,
@@ -28,4 +26,5 @@ def get_me(
         foto_perfil=user.foto_perfil,
         rol=user.role.nombre,
         carrera=user.career.siglas,
+        intentos_fallidos=user.intentos_fallidos,
     )
