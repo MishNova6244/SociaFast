@@ -80,5 +80,5 @@ class AuthService:
             access_token=token,
             rol=usuario.role.nombre,
             matricula=usuario.matricula,
-            nombre=f"{usuario.nombre} {usuario.apellido_paterno}",
+            nombre=f"{usuario.nombre} {usuario.apellido_paterno} {usuario.apellido_materno or ''}".strip(),
         )

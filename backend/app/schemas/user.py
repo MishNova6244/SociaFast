@@ -33,7 +33,7 @@ class UserCreate(BaseModel):
             raise ValueError("La matrícula debe tener exactamente 8 dígitos")
         return v
 
-    @model_validator(mode="after")
+    @model_validator(mode = "after")
     def passwords_coinciden(self):
         if self.password != self.confirm_password:
             raise ValueError("Las contraseñas no coinciden")

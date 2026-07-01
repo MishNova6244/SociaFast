@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.core.exceptions import UnauthorizedException, ForbiddenException
 from app.core.security import decode_token
-from app.database.session import get_db  # noqa: F401  (re-exportado para comodidad)
+from app.database.session import get_db
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
@@ -14,36 +14,37 @@ def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
 ):
-    """Dependencia que extrae y valida el usuario del JWT."""
-    from app.models.user import User  # import local para evitar circular
-
+    """Extrae y valida el usuario desde el JWT en cada request protegido."""
     try:
         payload = decode_token(token)
-        user_id: str = payload.get("sub")
-        if not user_id:
-            raise UnauthorizedException("Token sin identificador de usuario")
+        matricula: str = payload.get("sub")
+        if not matricula:
+            raise UnauthorizedException("Token sin identificador")
     except JWTError:
         raise UnauthorizedException("Token inválido o expirado")
 
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user or not user.is_active:
-        raise UnauthorizedException("Usuario no encontrado o inactivo")
+    # Import local para evitar circular import
+    from app.models.user import User
+    user = db.query(User).filter(User.matricula == matricula).first()
+
+    if not user:
+        raise UnauthorizedException("Usuario no encontrado")
+    if user.estado != "activo":
+        raise ForbiddenException("Cuenta inactiva")
 
     return user
 
 
 def require_role(*roles: str):
-    """Factory que devuelve una dependencia que valida el rol del usuario."""
+    """Guard de rol reutilizable para cualquier endpoint futuro."""
     def checker(current_user=Depends(get_current_user)):
-        if current_user.role not in roles:
-            raise ForbiddenException(
-                f"Se requiere uno de los roles: {', '.join(roles)}"
-            )
+        if current_user.role.nombre not in roles:
+            raise ForbiddenException(f"Se requiere rol: {', '.join(roles)}")
         return current_user
     return checker
 
 
-# Guards listos para usar en los routers
+# Guards listos para importar en cualquier router
 get_student   = require_role("estudiante")
 get_encargado = require_role("encargado", "administrador")
 get_admin     = require_role("administrador")

@@ -15,8 +15,8 @@ class Settings(BaseSettings):
     DB_PASSWORD: str = "123456"
 
     # ── JWT ────────────────────────────────────────────────────
-    SECRET_KEY: str                  = "dev_key_cambiar_en_produccion"
-    ALGORITHM: str                   = "HS256"
+    SECRET_KEY: str = "dev_key_cambiar_en_produccion"
+    ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
     # ── URL de conexión construida desde las variables de arriba ─
