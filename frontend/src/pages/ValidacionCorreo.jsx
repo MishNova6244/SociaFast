@@ -12,11 +12,24 @@ function ValidarCorreo() {
 
   async function handleContinuar() {
     setError("")
+
+    // Validación 1 — dominio institucional
+    if (!correo.endsWith("@utpn.edu.mx")) {
+      setError("Acceso no autorizado. Solo se permiten correos institucionales @utpn.edu.mx")
+      return
+    }
+
+    // Validación 2 — distinguir estudiante vs encargado/admin antes de llamar al backend
+    const usuario = correo.split("@")[0]
+    if (!usuario || !/^\d+$/.test(usuario)) {
+      setError("No autorizado. El registro de encargados y administradores es gestionado por el sistema.")
+      return
+    }
+
     setLoading(true)
     try {
       const res = await authApi.validarCorreo(correo)
       if (res.es_estudiante) {
-        // Pasa el correo validado a la siguiente pantalla
         navigate("/registroAlumno", { state: { correo } })
       } else {
         setError(res.mensaje)
