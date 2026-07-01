@@ -5,7 +5,7 @@ import {Link} from "react-router-dom"
 function Registro() {
   return (
         <Layout className="py-8">
-            <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+            <div className="bg-white rounded-xl shadow-2xl p-6 w-full">
 
             <h2 className="text-2xl font-bold text-center mb-6">Crear Cuenta</h2>
 
@@ -18,7 +18,7 @@ function Registro() {
             <Input label="Matrícula:" type="text" placeholder="Ejemplo: 25310206"></Input>
 
             <label className="block mb-2 font-medium">Carrera:</label>
-            <select className="w-full border border-gray-300 rounded-lg p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-[#18AD8F] transition duration-200">
+            <select className="w-full border border-gray-300 rounded-lg p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-[#18AD8F] transition duration-200">
                 <option value="" disabled>Seleccione una carrera</option>
                 <option value="mecatronica">Ing. en Mecatrónica</option>
                 <option value="industrial">Ing. Industrial</option>
@@ -35,7 +35,7 @@ function Registro() {
 
             <Input label="Confirmar contraseña:" type="password" placeholder="Confirme su contraseña"></Input>
 
-            <div className="flex justify-center">
+            <div className="w-full flex justify-center">
                 <button className="bg-green-500 font-bold text-white px-6 py-2 rounded-full hover:bg-green-800 hover:scale-105 transition duration-200">
                 Crear cuenta
                 </button>
