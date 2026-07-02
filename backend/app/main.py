@@ -12,8 +12,11 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],        # permite cualquier origen en desarrollo
-    allow_credentials=False,    # debe ser False cuando allow_origins=["*"]
+    allow_origins=[
+        "http://localhost:5173",
+        "https://wxh98t5h-5173.usw3.devtunnels.ms",  # tu URL del tunnel frontend
+    ],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

@@ -1,22 +1,74 @@
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import Input from "../components/Input"
 import Layout from "../components/Layout"
-import {Link} from "react-router-dom"
+import { authApi } from "../services/api"
 
-function RegistrarCorreo(){
-    return(
-        <Layout className="">
-        <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+function RegistrarCorreo() {
+  const [correo, setCorreo]   = useState("")
+  const [error, setError]     = useState("")
+  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
+
+  async function handleContinuar() {
+    setError("")
+
+    if (!correo.trim()) {
+      setError("El correo es obligatorio")
+      return
+    }
+    if (!correo.endsWith("@utpn.edu.mx")) {
+      setError("Acceso no autorizado. Solo se permiten correos institucionales @utpn.edu.mx")
+      return
+    }
+    const usuario = correo.split("@")[0]
+    if (!/^\d+$/.test(usuario)) {
+      setError("No autorizado. El registro de encargados y administradores es gestionado por el sistema.")
+      return
+    }
+
+    setLoading(true)
+    try {
+      const res = await authApi.validarCorreo(correo)
+      if (res.es_estudiante) {
+        navigate("/registroAlumno", { state: { correo } })
+      } else {
+        setError(res.mensaje)
+      }
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <Layout className="">
+      <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
         <h2 className="text-2xl font-bold text-center mb-6">Registrarse</h2>
 
-        <Input label="Correo institucional:" type="email" placeholder="ejemplo@utpn.edu.mx"></Input>
+        <Input
+          label="Correo institucional:"
+          type="email"
+          placeholder="ejemplo@utpn.edu.mx"
+          value={correo}
+          onChange={(e) => setCorreo(e.target.value)}
+        />
+
+        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
         <div className="flex justify-center">
-        <Link to="/registroAlumno" className="bg-[#06B800] font-bold text-white px-6 py-2 rounded-full hover:bg-green-800 hover:scale-105 transition">Continuar</Link>
+          <button
+            onClick={handleContinuar}
+            disabled={loading}
+            className="bg-[#06B800] font-bold text-white px-6 py-2 rounded-full hover:bg-green-800 hover:scale-105 transition"
+          >
+            {loading ? "Verificando..." : "Continuar"}
+          </button>
         </div>
-
-        </div>
-        </Layout>
-    )
+      </div>
+    </Layout>
+  )
 }
 
 export default RegistrarCorreo

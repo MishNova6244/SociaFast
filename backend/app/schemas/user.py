@@ -54,7 +54,7 @@ class UserResponse(BaseModel):
     matricula: str
     nombre: str
     apellido_paterno: str
-    apellido_materno: Optional[str]
+    apellido_materno: str
     correo_institucional: str
     estado: str
     foto_perfil: Optional[str]
