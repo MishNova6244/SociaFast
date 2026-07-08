@@ -5,7 +5,7 @@ const META = 48
 
 function Perfil() {
   const { user } = useOutletContext() || {}
-  const horas      = user?.horas_acumuladas ?? 0
+  const horas = user?.horas_acumuladas ?? 0
   const porcentaje = Math.min(Math.round((horas / META) * 100), 100)
 
   function getInitials(nombre = "") {
@@ -57,7 +57,7 @@ function Perfil() {
                 <FaIdCard size={18} />
               </div>
               <div>
-                <p className="text-xs text-gray-400">Matricula</p>
+                <p className="text-xs text-gray-400">Matrícula</p>
                 <p className="font-semibold">{user?.matricula ?? "—"}</p>
               </div>
             </div>
