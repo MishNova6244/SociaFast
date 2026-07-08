@@ -1,0 +1,11 @@
+# Entorno virtual
+venv/
+__pycache__/
+*.pyc
+
+# Variables de entorno (NUNCA subir a git)
+.env
+
+# Base de datos local
+*.db
+*.sqlite
