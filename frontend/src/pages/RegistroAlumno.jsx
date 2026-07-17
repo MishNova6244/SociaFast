@@ -1,24 +1,8 @@
 import { useState } from "react"
 import { useNavigate, useLocation, Link } from "react-router-dom"
 import Layout from "../components/Layout"
+import Input from "../components/Input"
 import { authApi } from "../services/api"
-
-function Campo({ label, type = "text", placeholder, value, onChange, error }) {
-  return (
-    <div className="mb-4">
-      <label className="block mb-1 font-medium">{label}</label>
-      <input
-        type={type}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        className={`w-full border rounded-lg p-3 focus:outline-none focus:ring-2 transition duration-200
-          ${error ? "border-red-400 focus:ring-red-300" : "border-gray-300 focus:ring-[#18AD8F]"}`}
-      />
-      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
-    </div>
-  )
-}
 
 function RegistroAlumno() {
   const { state } = useLocation()
@@ -42,14 +26,14 @@ function RegistroAlumno() {
     if (!form.nombre.trim()) e.nombre = "El nombre es obligatorio"
     if (!form.apellido_paterno.trim()) e.apellido_paterno = "El apellido paterno es obligatorio"
     if (!form.apellido_materno.trim()) e.apellido_materno = "El apellido materno es obligatorio"
-    if (!form.matricula) e.matricula = "La matricula es obligatoria"
-    else if (!/^\d{8}$/.test(form.matricula)) e.matricula = "Debe tener exactamente 8 digitos"
+    if (!form.matricula) e.matricula = "La matrícula es obligatoria"
+    else if (!/^\d{8}$/.test(form.matricula)) e.matricula = "Debe tener exactamente 8 dígitos"
     if (!form.carrera) e.carrera = "Selecciona una carrera"
-    if (!form.password) e.password = "La contrasena es obligatoria"
+    if (!form.password) e.password = "La contraseña es obligatoria"
     else if (form.password.length < 8) e.password = "Minimo 8 caracteres"
-    else if (!/[A-Z]/.test(form.password)) e.password = "Debe incluir al menos una mayuscula"
-    else if (!/\d/.test(form.password)) e.password = "Debe incluir al menos un numero"
-    if (form.password !== form.confirm_password) e.confirm_password = "Las contraseas no coinciden"
+    else if (!/[A-Z]/.test(form.password)) e.password = "Debe incluir al menos una mayúscula"
+    else if (!/\d/.test(form.password)) e.password = "Debe incluir al menos un número"
+    if (form.password !== form.confirm_password) e.confirm_password = "Las contraseñas no coinciden"
     return e
   }
 
@@ -74,10 +58,10 @@ function RegistroAlumno() {
       <div className="bg-white rounded-xl shadow-2xl p-6 w-full">
         <h2 className="text-2xl font-bold text-center mb-6">Crear Cuenta</h2>
 
-        <Campo label="Nombre(s):" placeholder="Ingrese su nombre" value={form.nombre} onChange={set("nombre")} error={errores.nombre} />
-        <Campo label="Apellido paterno:" placeholder="Ingrese su apellido paterno" value={form.apellido_paterno} onChange={set("apellido_paterno")} error={errores.apellido_paterno} />
-        <Campo label="Apellido materno:" placeholder="Ingrese su apellido materno" value={form.apellido_materno} onChange={set("apellido_materno")} error={errores.apellido_materno} />
-        <Campo label="Matricula:" placeholder="Ejemplo: 25310206" value={form.matricula} onChange={set("matricula")} 
+        <Input label="Nombre(s):" placeholder="Ingrese su nombre" value={form.nombre} onChange={set("nombre")} error={errores.nombre} />
+        <Input label="Apellido paterno:" placeholder="Ingrese su apellido paterno" value={form.apellido_paterno} onChange={set("apellido_paterno")} error={errores.apellido_paterno} />
+        <Input label="Apellido materno:" placeholder="Ingrese su apellido materno" value={form.apellido_materno} onChange={set("apellido_materno")} error={errores.apellido_materno} />
+        <Input label="Matrícula:" placeholder="Ejemplo: 25310206" value={form.matricula} onChange={set("matricula")} 
         error={errores.matricula} />
 
         <div className="mb-4">
@@ -102,8 +86,8 @@ function RegistroAlumno() {
           {errores.carrera && <p className="text-red-500 text-xs mt-1">{errores.carrera}</p>}
         </div>
 
-        <Campo label="Contraseña:"type="password" placeholder="Mínimo 8 caracteres, 1 mayúscula y 1 número" value={form.password}        onChange={set("password")}error={errores.password} />
-        <Campo label="Confirmar contraseña:" type="password" placeholder="Confirme su contraseña"                      value={form.confirm_password} onChange={set("confirm_password")} error={errores.confirm_password} />
+        <Input label="Contraseña:" type="password" placeholder="Mínimo 8 caracteres, 1 mayúscula y 1 número" value={form.password} onChange={set("password")} error={errores.password} />
+        <Input label="Confirmar contraseña:" type="password" placeholder="Confirme su contraseña" value={form.confirm_password} onChange={set("confirm_password")} error={errores.confirm_password} />
 
         {errorGeneral && <p className="text-red-500 text-sm mb-4">{errorGeneral}</p>}
 

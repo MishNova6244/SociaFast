@@ -55,9 +55,9 @@ function LoginAlumno() {
         <Input label="Contraseña:" type="password" placeholder="Ingrese su contraseña"
           value={password} onChange={(e) => setPassword(e.target.value)} />
 
-        <Link to="/recuperarContrasena" className="text-[#00B58E] font-semibold block text-left w-full hover:underline">
+        {/* <Link to="/recuperarContrasena" className="text-[#00B58E] font-semibold block text-left w-full hover:underline">
           ¿Olvidaste tu contraseña?
-        </Link>
+        </Link> */}
 
         {error && <p className="text-red-500 text-sm mt-3 mb-1">{error}</p>}
 
@@ -77,7 +77,7 @@ function LoginAlumno() {
 
         <p className="text-center mt-4">¿Aún no tienes cuenta?</p>
         <Link to="/registrarCorreo" className="text-[#00B58E] font-semibold block text-center w-full hover:underline">
-          Registrarse
+          Regístrate
         </Link>
       </div>
     </Layout>

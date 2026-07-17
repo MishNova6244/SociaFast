@@ -12,16 +12,19 @@ function Sidebar({ sidebarOpen, setSidebarOpen, onLogout }) {
 
   return (
     <>
-      <aside className={`fixed md:static top-0 left-0 h-full md:h-auto w-64 bg-[#18AD8F] text-white flex flex-col z-50 transition-transform duration-300
+      {/* Ajustar Sidebar para mostrarse o esconderse según la pantalla del dispositivo */}
+      <aside className={`fixed md:static top-0 left-0 h-full md:h-auto w-64 bg-[#18AD8F] text-white flex flex-col overflow-y-auto z-50 transition-transform duration-300
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}>
 
         <div className="p-6 border-b border-white/20">
+          {/* Botón de cerrar (X) en la parte superior de la Sidebar en dispositivos móviles */}
           <div className="flex items-center justify-end md:hidden cursor-pointer" onClick={() => setSidebarOpen(false)}>
             <FaXmark size={22} />
           </div>
           <img src={SFlogo} alt="SociaFast" className="w-35 md:w-40 mx-auto" />
         </div>
 
+        {/* Secciones del Sidebar */}
         <nav className="flex flex-col gap-2 p-4">
           <NavLink to="" end className={({ isActive }) =>
             `flex items-center gap-3 w-full p-3 rounded-lg transition ${isActive ? "bg-white/25 font-semibold" : "hover:bg-white/20"}`}>
@@ -37,7 +40,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen, onLogout }) {
           </NavLink>
           <NavLink to="reportes" className={({ isActive }) =>
             `flex items-center gap-3 w-full p-3 rounded-lg transition ${isActive ? "bg-white/25 font-semibold" : "hover:bg-white/20"}`}>
-            <FaFileLines size={22} /><span>Generar reporte</span>
+            <FaFileLines size={22} /><span>Generar reportes</span>
           </NavLink>
           <NavLink to="historial" className={({ isActive }) =>
             `flex items-center gap-3 w-full p-3 rounded-lg transition ${isActive ? "bg-white/25 font-semibold" : "hover:bg-white/20"}`}>
