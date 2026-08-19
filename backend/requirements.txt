@@ -25,3 +25,5 @@ pydantic[email]>=2.6.0
 python-docx>=1.1.0    # Rellenar plantillas .docx con datos del alumno
 reportlab>=4.0.0      # Generar PDFs desde cero y superponer imágenes
 pypdf>=4.0.0          # Superponer el sello sobre el PDF generado
+
+requests>=2.31.0
