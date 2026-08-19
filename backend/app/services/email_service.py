@@ -34,10 +34,10 @@ async def _send(to_email: str, subject: str, html_body: str) -> None:
     msg["Subject"], msg["From"], msg["To"] = subject, settings.MAIL_FROM, to_email
     msg.attach(MIMEText(html_body, "html"))
     await aiosmtplib.send(
-        msg, hostname=settings.MAIL_SERVER, port=settings.MAIL_PORT,
-        username=settings.MAIL_USERNAME, password=settings.MAIL_PASSWORD,
-        start_tls=True,
-    )
+    msg, hostname=settings.MAIL_SERVER, port=settings.MAIL_PORT,
+    username=settings.MAIL_USERNAME, password=settings.MAIL_PASSWORD,
+    use_tls=True,  # cambio aquí
+)
 
 
 class EmailService:
