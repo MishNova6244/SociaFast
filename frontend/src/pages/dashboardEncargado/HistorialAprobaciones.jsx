@@ -3,10 +3,9 @@ import { FaCircleCheck, FaCircleXmark } from "react-icons/fa6"
 import ModalFormularioDesempeno from "../../components/ModalFormularioDesempeno"
 
 const HISTORIAL = [
-  { alumno: "Ana García López",   matricula: "25310201", carrera: "Tecnologías",  etapa: "Horas",       estado: "aprobado",  fecha: "20 Jul 2026", comentario: "Horas completas verificadas." },
-  { alumno: "Carolina Carrillo",  matricula: "25310209", carrera: "Tecnologías",  etapa: "Evidencias",  estado: "aprobado",  fecha: "22 Jul 2026", comentario: "Documentos en orden." },
-  { alumno: "Diana Torres Pérez", matricula: "25310203", carrera: "Mecatrónica",  etapa: "Horas",       estado: "aprobado",  fecha: "21 Jul 2026", comentario: "" },
-  { alumno: "Carlos Ruiz",        matricula: "25310202", carrera: "Industrial",   etapa: "Evidencias",  estado: "rechazado", fecha: "23 Jul 2026", comentario: "Faltan firmas en el documento." },
+  { alumno: "Leslie Margarita Aranda",  matricula: "25310157", carrera: "Infraestructura en Redes Digitales", etapa: "Horas",      estado: "aprobado",  fecha: "20 Jul 2026", comentario: "48 horas completas verificadas." },
+  { alumno: "Nahomi Torres Escobar",    matricula: "25310206", carrera: "Infraestructura en Redes Digitales", etapa: "Evidencias", estado: "aprobado",  fecha: "22 Jul 2026", comentario: "Documentos en orden." },
+  { alumno: "Luz Aracely Muñoz Perez",  matricula: "25310130", carrera: "Ing. Industrial",                   etapa: "Horas",      estado: "en_proceso", fecha: "21 Jul 2026", comentario: "" },
 ]
 
 function HistorialAprobaciones() {
