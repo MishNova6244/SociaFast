@@ -30,14 +30,16 @@ router = APIRouter(prefix="/docs", tags=["documentos"])
 def _alumno_dict(user: User) -> dict:
     """Convierte un User en el dict que necesita documento_service."""
     return {
-        "student_id":      user.student_id,
-        "first_name":      user.first_name,
-        "paternal_surname":user.paternal_surname,
-        "maternal_surname":user.maternal_surname,
-        "career":          user.career.nombre if user.career else "",
-        "cuatrimestre":    user.cuatrimestre,
-        "grupo":           user.grupo,
-        "actividad":       user.actividad_inscrita.actividad.nombre if user.actividad_inscrita else "",
+        "student_id": user.student_id,
+        "first_name": user.first_name,
+        "paternal_surname": user.paternal_surname,
+        "maternal_surname": user.maternal_surname,
+        "career": user.career.name if user.career else "",
+        "cuatrimestre": user.cuatrimestre,
+        "grupo": user.grupo,
+        "actividad": (
+            user.actividad_inscrita.actividad.nombre if user.actividad_inscrita else ""
+        ),
     }
 
 
