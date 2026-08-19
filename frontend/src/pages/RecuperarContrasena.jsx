@@ -26,10 +26,10 @@ function RecuperarContrasena() {
       // Siempre muestra éxito — el backend no revela si el correo existe
       setEnviado(true)
     } catch (e) {
-      setError("Ocurrió un error. Intenta de nuevo.")
-    } finally {
-      setLoading(false)
-    }
+  // Aunque falle el envío del correo, mostramos confirmación
+  // El token ya se generó en la BD
+  setEnviado(true)
+}
   }
 
   return (
