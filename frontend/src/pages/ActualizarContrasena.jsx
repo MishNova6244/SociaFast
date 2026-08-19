@@ -9,9 +9,9 @@ function ActualizarContrasena() {
   const [form, setForm] = useState({
     token: "", new_password: "", confirm_password: "",
   })
-  const [errors, setErrors]       = useState({})
+  const [errors, setErrors]             = useState({})
   const [generalError, setGeneralError] = useState("")
-  const [loading, setLoading]     = useState(false)
+  const [loading, setLoading]           = useState(false)
 
   const set = (field) => (e) => {
     setForm({ ...form, [field]: e.target.value })
@@ -46,13 +46,17 @@ function ActualizarContrasena() {
     setLoading(true)
     try {
       await authApi.resetPassword(form)
-      // Redirige al login con mensaje de éxito en el state
       navigate("/", { state: { message: "Contraseña actualizada correctamente. Ya puedes iniciar sesión." } })
     } catch (err) {
       setGeneralError(err.message || "Código inválido o expirado. Solicita uno nuevo.")
     } finally {
       setLoading(false)
     }
+  }
+
+  // Demo — salta la validación del código
+  function handleDemo() {
+    navigate("/", { state: { message: "Contraseña actualizada correctamente. Ya puedes iniciar sesión." } })
   }
 
   return (
@@ -63,7 +67,6 @@ function ActualizarContrasena() {
           Ingresa el código de 6 dígitos que recibiste en tu correo institucional.
         </p>
 
-        {/* Campo del código */}
         <div className="mb-4">
           <label className="block mb-1 font-medium">Código de verificación:</label>
           <input
@@ -79,23 +82,13 @@ function ActualizarContrasena() {
           {errors.token && <p className="text-red-500 text-xs mt-1">{errors.token}</p>}
         </div>
 
-        <Input
-          label="Nueva contraseña:"
-          type="password"
+        <Input label="Nueva contraseña:" type="password"
           placeholder="Mínimo 8 caracteres, 1 mayúscula y 1 número"
-          value={form.new_password}
-          onChange={set("new_password")}
-          error={errors.new_password}
-        />
+          value={form.new_password} onChange={set("new_password")} error={errors.new_password} />
 
-        <Input
-          label="Confirmar contraseña:"
-          type="password"
+        <Input label="Confirmar contraseña:" type="password"
           placeholder="Repite tu nueva contraseña"
-          value={form.confirm_password}
-          onChange={set("confirm_password")}
-          error={errors.confirm_password}
-        />
+          value={form.confirm_password} onChange={set("confirm_password")} error={errors.confirm_password} />
 
         {generalError && (
           <p className="text-red-500 text-sm mb-4 text-center">{generalError}</p>
@@ -108,7 +101,15 @@ function ActualizarContrasena() {
           </button>
         </div>
 
-        <div className="mt-6 text-center space-y-2">
+        {/* Botón demo — solo para presentación */}
+        <div className="flex justify-center mt-3">
+          <button onClick={handleDemo}
+            className="text-xs text-gray-300 hover:text-gray-400 transition underline">
+            Continuar demo →
+          </button>
+        </div>
+
+        <div className="mt-4 text-center space-y-2">
           <p className="text-sm text-gray-500">
             ¿No recibiste el código?{" "}
             <Link to="/recuperarContrasena" className="text-[#18AD8F] font-semibold hover:underline">
