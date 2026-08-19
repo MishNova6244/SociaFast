@@ -1,5 +1,6 @@
 import { useState } from "react"
-import { FaFileWord, FaDownload, FaUpload, FaCircleCheck, FaHourglass, FaCircle, FaCircleXmark } from "react-icons/fa6"
+
+import { FaFileWord, FaUpload, FaCircleCheck, FaHourglass, FaCircle, FaCircleXmark } from "react-icons/fa6"
 
 // Solo los documentos que llena el alumno — Evaluación de desempeño la llena el encargado
 const DOCUMENTOS = [
@@ -77,11 +78,6 @@ function TarjetaDocumento({ doc, estado, archivoSubido, onSubir }) {
           <p className="text-xs text-gray-300 mt-2">Formatos: .docx, .pdf</p>
         </div>
       )}
-
-      <a href={doc.archivo} download={doc.nombreArchivo}
-        className="flex items-center justify-center gap-2 border border-[#18AD8F] text-[#18AD8F] text-sm font-semibold py-2 rounded-lg hover:bg-[#18AD8F] hover:text-white transition">
-        <FaDownload size={14} /> Descargar formato
-      </a>
     </div>
   )
 }
