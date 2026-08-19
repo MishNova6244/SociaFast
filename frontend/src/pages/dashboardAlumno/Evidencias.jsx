@@ -104,8 +104,8 @@ function Evidencias() {
     <>
       <h2 className="text-3xl font-bold mb-2">Subir Evidencias</h2>
       <p className="text-gray-400 text-sm mb-6">
-        Descarga cada formato, llénalo y súbelo. El encargado validará cada documento.
-      </p>
+  Sube tus documentos del servicio social. El encargado validará cada uno.
+</p>
 
       <div className="flex gap-4 mb-6">
         <div className="bg-white rounded-xl shadow px-5 py-3 flex items-center gap-3">
