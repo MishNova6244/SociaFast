@@ -4,17 +4,21 @@ import { FaCheck, FaXmark, FaClock } from "react-icons/fa6"
 
 // Datos temporales
 const ALUMNOS = [
-  { matricula: "25310206", nombre: "Ana López",     grupo: "TRM31", actividad: "Voleibol" },
-  { matricula: "25310204", nombre: "Juan Pérez",    grupo: "TRM31", actividad: "Voleibol" },
-  { matricula: "25318421", nombre: "María García",  grupo: "MTM22", actividad: "Voleibol" },
-  { matricula: "25319826", nombre: "Luis Torres",   grupo: "MTM22", actividad: "Baloncesto" },
-  { matricula: "25317632", nombre: "Sofía Ramírez", grupo: "TRM31", actividad: "Baloncesto" },
+  { matricula: "25310157", nombre: "Leslie Margarita Aranda",  grupo: "TRM11", actividad: "Adopta a un Perro" },
+  { matricula: "25310205", nombre: "Michelle Estrella Enriquez", grupo: "TRM31", actividad: "Adopta a un Perro" },
+  { matricula: "25310206", nombre: "Nahomi Torres Escobar",    grupo: "TRM31", actividad: "Adopta a un Perro" },
+  { matricula: "25310130", nombre: "Luz Aracely Muñoz Perez",  grupo: "PIM31", actividad: "Adopta a un Perro" },
 ]
 
 const REGISTROS_GUARDADOS = [
-  { matricula: "25310206", nombre: "Ana López",  grupo: "TRM31", actividad: "Voleibol", fecha: "2026-08-10", estado: "presente" },
-  { matricula: "25310204", nombre: "Juan Pérez", grupo: "TRM31", actividad: "Voleibol", fecha: "2026-08-10", estado: "ausente" },
-  { matricula: "25318421", nombre: "María García", grupo: "MTM22", actividad: "Voleibol", fecha: "2026-08-12", estado: "presente" },
+  { matricula: "25310157", nombre: "Leslie Margarita Aranda",    grupo: "TRM11", actividad: "Adopta a un Perro", fecha: "2026-08-14", estado: "presente" },
+  { matricula: "25310205", nombre: "Michelle Estrella Enriquez", grupo: "TRM31", actividad: "Adopta a un Perro", fecha: "2026-08-14", estado: "presente" },
+  { matricula: "25310206", nombre: "Nahomi Torres Escobar",      grupo: "TRM31", actividad: "Adopta a un Perro", fecha: "2026-08-14", estado: "retardo" },
+  { matricula: "25310130", nombre: "Luz Aracely Muñoz Perez",    grupo: "PIM31", actividad: "Adopta a un Perro", fecha: "2026-08-14", estado: "ausente" },
+  { matricula: "25310157", nombre: "Leslie Margarita Aranda",    grupo: "TRM11", actividad: "Adopta a un Perro", fecha: "2026-08-15", estado: "presente" },
+  { matricula: "25310205", nombre: "Michelle Estrella Enriquez", grupo: "TRM31", actividad: "Adopta a un Perro", fecha: "2026-08-15", estado: "presente" },
+  { matricula: "25310206", nombre: "Nahomi Torres Escobar",      grupo: "TRM31", actividad: "Adopta a un Perro", fecha: "2026-08-15", estado: "presente" },
+  { matricula: "25310130", nombre: "Luz Aracely Muñoz Perez",    grupo: "PIM31", actividad: "Adopta a un Perro", fecha: "2026-08-15", estado: "presente" },
 ]
 
 const ESTADOS = [
