@@ -27,3 +27,5 @@ reportlab>=4.0.0      # Generar PDFs desde cero y superponer imágenes
 pypdf>=4.0.0          # Superponer el sello sobre el PDF generado
 
 requests>=2.31.0
+
+PyPDF2>=3.0.0
