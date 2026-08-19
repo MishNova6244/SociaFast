@@ -29,9 +29,13 @@ async function request(endpoint, options = {}, skipAuthRedirect = false) {
 // Función unificada para descargar PDFs — evita duplicar código en cada método
 async function fetchBlob(endpoint, options = {}) {
   const token = localStorage.getItem("token")
+  const { headers: extraHeaders, ...restOptions } = options
   const res = await fetch(`${BASE_URL}${endpoint}`, {
-    headers: { Authorization: `Bearer ${token}`, ...options.headers },
-    ...options,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      ...extraHeaders,
+    },
+    ...restOptions,
   })
   if (!res.ok) {
     const data = await res.json().catch(() => ({}))
