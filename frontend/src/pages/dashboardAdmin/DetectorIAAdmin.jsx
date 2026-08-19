@@ -1,7 +1,38 @@
-import { useState } from "react"
-import { FaRobot, FaFileLines, FaTriangleExclamation, FaSpinner, FaMagnifyingGlass } from "react-icons/fa6"
+import { useState, useRef } from "react"
+import { FaRobot, FaFileLines, FaTriangleExclamation, FaSpinner, FaUpload, FaXmark } from "react-icons/fa6"
 
 const SAPLING_KEY = "EZ4DLO7CAPGBKCQ2YW5IVT484JRCNWZI"
+
+async function extraerTextoPdf(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.onload = async (e) => {
+      try {
+        const pdfjsLib = await import("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js")
+        const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(e.target.result) }).promise
+        let texto = ""
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page    = await pdf.getPage(i)
+          const content = await page.getTextContent()
+          texto += content.items.map(item => item.str).join(" ") + "\n"
+        }
+        resolve(texto)
+      } catch { resolve("") }
+    }
+    reader.readAsArrayBuffer(file)
+  })
+}
+
+async function extraerTextoDocx(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const matches = e.target.result.match(/<w:t[^>]*>([^<]+)<\/w:t>/g) || []
+      resolve(matches.map(m => m.replace(/<[^>]+>/g, "")).join(" "))
+    }
+    reader.readAsText(file)
+  })
+}
 
 async function detectarIA(texto) {
   const res = await fetch("https://api.sapling.ai/api/v1/aidetect", {
@@ -10,83 +41,119 @@ async function detectarIA(texto) {
     body: JSON.stringify({ key: SAPLING_KEY, text: texto }),
   })
   if (!res.ok) throw new Error("Error al contactar la API de detección")
-  const data = await res.json()
-  return data.score
-}
-
-function ResultadoBarra({ score }) {
-  const pct      = Math.round(score * 100)
-  const esIA     = pct >= 60
-  const color    = pct >= 60 ? "bg-red-500" : pct >= 40 ? "bg-yellow-400" : "bg-green-500"
-  const etiqueta = pct >= 60 ? "Probable IA" : pct >= 40 ? "Incierto" : "Humano"
-
-  return (
-    <div className="mt-4">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-semibold text-gray-700">Resultado</span>
-        <span className={`text-xs font-bold px-3 py-1 rounded-full text-white ${esIA ? "bg-red-500" : "bg-green-500"}`}>
-          {etiqueta} — {pct}%
-        </span>
-      </div>
-      <div className="w-full bg-gray-200 rounded-full h-3">
-        <div className={`h-3 rounded-full transition-all duration-700 ${color}`} style={{ width: `${pct}%` }} />
-      </div>
-      {esIA && (
-        <p className="text-red-500 text-xs mt-2 flex items-center gap-1">
-          <FaTriangleExclamation size={11} /> Alta probabilidad de contenido generado por IA
-        </p>
-      )}
-    </div>
-  )
+  return (await res.json()).score
 }
 
 function DetectorIAAdmin() {
-  const [texto, setTexto]     = useState("")
-  const [score, setScore]     = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError]     = useState("")
+  const [archivo, setArchivo]   = useState(null)
+  const [score, setScore]       = useState(null)
+  const [loading, setLoading]   = useState(false)
+  const [error, setError]       = useState("")
+  const [progreso, setProgreso] = useState("")
+  const inputRef                = useRef()
+
+  function handleFile(file) {
+    if (!file) return
+    const ext = file.name.split(".").pop().toLowerCase()
+    if (!["pdf", "docx", "txt"].includes(ext)) return setError("Solo PDF, DOCX o TXT")
+    setArchivo(file); setScore(null); setError("")
+  }
+
+  function limpiar() { setArchivo(null); setScore(null); setError(""); setProgreso("") }
 
   async function handleAnalizar() {
-    if (!texto.trim()) return setError("Ingresa el texto a analizar")
-    if (texto.trim().length < 50) return setError("Mínimo 50 caracteres")
+    if (!archivo) return setError("Selecciona un documento")
     setError(""); setScore(null); setLoading(true)
     try {
-      setScore(await detectarIA(texto))
+      setProgreso("Extrayendo texto...")
+      const ext = archivo.name.split(".").pop().toLowerCase()
+      let texto = ext === "txt" ? await archivo.text()
+                : ext === "docx" ? await extraerTextoDocx(archivo)
+                : await extraerTextoPdf(archivo)
+
+      if (!texto.trim() || texto.trim().length < 50)
+        throw new Error("No se pudo extraer suficiente texto. Prueba con un archivo .txt")
+
+      setProgreso("Analizando con IA...")
+      setScore(await detectarIA(texto.slice(0, 5000)))
+      setProgreso("")
     } catch (err) {
-      setError(err.message)
+      setError(err.message); setProgreso("")
     } finally {
       setLoading(false)
     }
   }
 
+  const pct      = score !== null ? Math.round(score * 100) : 0
+  const esIA     = pct >= 60
+  const color    = pct >= 60 ? "bg-red-500" : pct >= 40 ? "bg-yellow-400" : "bg-green-500"
+  const etiqueta = pct >= 60 ? "Probable IA" : pct >= 40 ? "Incierto" : "Humano"
+
   return (
     <>
       <h2 className="text-3xl font-bold mb-2">Detector de IA</h2>
       <p className="text-gray-400 text-sm mb-6">
-        Verifica si un documento o reporte fue generado por inteligencia artificial.
+        Sube un documento para verificar si fue generado por inteligencia artificial.
       </p>
 
       <div className="bg-white rounded-xl shadow p-6">
-        <div className="flex items-center gap-2 mb-3">
-          <FaMagnifyingGlass size={16} className="text-[#18AD8F]" />
-          <label className="font-semibold text-gray-700">Texto a analizar</label>
-        </div>
-        <textarea
-          value={texto}
-          onChange={(e) => { setTexto(e.target.value); setError("") }}
-          placeholder="Pega el contenido del documento a verificar (mínimo 50 caracteres)..."
-          rows={8}
-          className="w-full border border-gray-200 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#18AD8F] resize-none"
-        />
-        <div className="flex items-center justify-between mt-2">
-          <span className="text-xs text-gray-400">{texto.length} caracteres</span>
-          {error && <p className="text-red-500 text-xs">{error}</p>}
-        </div>
+        {!archivo ? (
+          <div onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => { e.preventDefault(); handleFile(e.dataTransfer.files[0]) }}
+            onClick={() => inputRef.current?.click()}
+            className="border-2 border-dashed border-gray-300 rounded-xl p-10 text-center cursor-pointer hover:border-[#1A3A5C] hover:bg-blue-50/30 transition">
+            <FaUpload size={32} className="text-gray-300 mx-auto mb-3" />
+            <p className="font-semibold text-gray-600">Arrastra el documento aquí</p>
+            <p className="text-sm text-gray-400 mt-1">o haz clic para seleccionar</p>
+            <p className="text-xs text-gray-300 mt-2">PDF, DOCX, TXT</p>
+            <input ref={inputRef} type="file" accept=".pdf,.docx,.txt" className="hidden"
+              onChange={(e) => handleFile(e.target.files[0])} />
+          </div>
+        ) : (
+          <div className="flex items-center justify-between bg-gray-50 rounded-xl px-5 py-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-[#1A3A5C]/10 text-[#1A3A5C] flex items-center justify-center">
+                <FaFileLines size={20} />
+              </div>
+              <div>
+                <p className="font-semibold text-gray-700">{archivo.name}</p>
+                <p className="text-xs text-gray-400">{(archivo.size / 1024).toFixed(1)} KB</p>
+              </div>
+            </div>
+            <button onClick={limpiar} className="text-gray-400 hover:text-red-500 transition">
+              <FaXmark size={18} />
+            </button>
+          </div>
+        )}
 
-        {score !== null && <ResultadoBarra score={score} />}
+        {error    && <p className="text-red-500 text-sm mt-3">{error}</p>}
+        {progreso && <p className="text-gray-400 text-sm mt-3 animate-pulse">{progreso}</p>}
 
-        <div className="flex justify-end mt-4">
-          <button onClick={handleAnalizar} disabled={loading}
+        {score !== null && (
+          <div className="mt-4">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-semibold text-gray-700">{archivo?.name}</p>
+              <span className={`text-xs font-bold px-3 py-1 rounded-full text-white ${esIA ? "bg-red-500" : "bg-green-500"}`}>
+                {etiqueta} — {pct}%
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-3">
+              <div className={`h-3 rounded-full transition-all duration-700 ${color}`} style={{ width: `${pct}%` }} />
+            </div>
+            <div className="flex justify-between text-xs text-gray-400 mt-1">
+              <span>Humano</span>
+              <span>IA</span>
+            </div>
+            {esIA && (
+              <p className="text-red-500 text-xs mt-2 flex items-center gap-1">
+                <FaTriangleExclamation size={11} /> Alta probabilidad de contenido generado por IA
+              </p>
+            )}
+          </div>
+        )}
+
+        <div className="flex justify-end mt-5">
+          <button onClick={handleAnalizar} disabled={!archivo || loading}
             className="flex items-center gap-2 bg-[#1A3A5C] text-white font-bold px-6 py-2 rounded-full hover:bg-[#122840] transition disabled:opacity-50">
             {loading ? <FaSpinner size={14} className="animate-spin" /> : <FaRobot size={14} />}
             {loading ? "Analizando..." : "Analizar documento"}
