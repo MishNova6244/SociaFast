@@ -6,12 +6,20 @@ import { actividadesApi, documentosApi, descargarBlob } from "../../services/api
 const EJEMPLO_PRUEBA = {
   student_id:        "25310205",
   first_name:        "Michelle",
-  paternal_surname:  "Enríquez",
+  paternal_surname:  "Enriquez",
   accumulated_hours: 48,
-  cuatrimestre:      1,
-  actividad:         "Voleibol",
+  cuatrimestre:      3,
+  actividad:         "Adopta a un Perro",
 }
 // ─────────────────────────────────────────────────────────────────────────────
+const EJEMPLO_PRUEBA_1ER = {
+  student_id:        "25310157",
+  first_name:        "Leslie Margarita",
+  paternal_surname:  "Aranda",
+  accumulated_hours: 48,
+  cuatrimestre:      1,
+  actividad:         "Adopta a un Perro",
+}
 
 function Sellos() {
   const [alumnos, setAlumnos]     = useState([])
@@ -151,8 +159,9 @@ function Sellos() {
         </div>
       )}
 
-      {/* Ejemplo de prueba */}
+            {/* Ejemplos de prueba */}
       <div className="flex flex-col gap-4">
+        {renderTarjeta(EJEMPLO_PRUEBA_1ER, true)}
         {renderTarjeta(EJEMPLO_PRUEBA, true)}
       </div>
     </>
