@@ -1,10 +1,19 @@
 import { Navigate } from "react-router-dom"
 
-function ProtectedRoute({ children }) {
-  const token = localStorage.getItem("token")
+// Cambiar a true para activar protección de rutas en producción
+const PROTECCION_ACTIVA = true
 
-  // Si no hay token redirige al login sin mostrar la página
+function ProtectedRoute({ children, allowedRoles }) {
+  if (!PROTECCION_ACTIVA) return children
+
+  const token = localStorage.getItem("token")
   if (!token) return <Navigate to="/" replace />
+
+  if (allowedRoles) {
+    const user = JSON.parse(localStorage.getItem("user") || "null")
+    if (!user || !allowedRoles.includes(user.role))
+      return <Navigate to="/" replace />
+  }
 
   return children
 }

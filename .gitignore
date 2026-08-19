@@ -1,11 +1,14 @@
-# Entorno virtual
-venv/
-__pycache__/
-*.pyc
+﻿# Python
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/**/*.pyc
+backend/.env
 
-# Variables de entorno (NUNCA subir a git)
-.env
+# Node
+frontend/node_modules/
+backend/node_modules/
+node_modules/
 
-# Base de datos local
-*.db
-*.sqlite
+# Build
+frontend/dist/

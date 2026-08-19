@@ -1,34 +1,48 @@
-import re
-
-from pydantic import BaseModel, EmailStr, field_validator
-
-DOMINIO_INSTITUCIONAL = "@utpn.edu.mx"
-
-
-class ValidarCorreoRequest(BaseModel):
-    correo: EmailStr
-
-    @field_validator("correo")
-    @classmethod
-    def dominio_valido(cls, v: str) -> str:
-        if not v.endswith(DOMINIO_INSTITUCIONAL):
-            raise ValueError(f"El correo debe terminar en {DOMINIO_INSTITUCIONAL}")
-        return v
+"""
+Schemas de autenticación.
+Solo definen estructura y tipos — sin lógica de negocio.
+"""
+from pydantic import BaseModel, EmailStr
 
 
-class ValidarCorreoResponse(BaseModel):
-    es_estudiante: bool
-    mensaje: str
+class ValidateEmailRequest(BaseModel):
+    email: EmailStr
+
+
+class ValidateEmailResponse(BaseModel):
+    is_student:         bool
+    already_registered: bool
+    message:            str
 
 
 class LoginRequest(BaseModel):
-    correo: EmailStr
+    email:    EmailStr
     password: str
 
 
 class TokenResponse(BaseModel):
     access_token: str
-    token_type: str = "bearer"
-    rol: str
-    matricula: str
-    nombre: str
+    token_type:   str = "bearer"
+    role:         str
+    student_id:   str
+    full_name:    str
+
+
+# ── Recuperación de contraseña ────────────────────────────────────────────────
+
+class PasswordResetRequest(BaseModel):
+    """El usuario proporciona su correo institucional para iniciar la recuperación."""
+    email: EmailStr
+
+
+class PasswordResetConfirm(BaseModel):
+    """El usuario envía el token de 6 dígitos recibido por correo y su nueva contraseña."""
+    token:            str
+    new_password:     str
+    confirm_password: str
+
+
+class MessageResponse(BaseModel):
+    """Respuesta genérica de éxito o información."""
+    message: str
+    detail:  str = ""
